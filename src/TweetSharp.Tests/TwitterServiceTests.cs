@@ -1075,6 +1075,22 @@ namespace TweetSharp.Tests.Service
 
         }
 
+
+        [Test]
+        public void Rate_limit_call_matches_response_value()
+        {
+            var service = GetAuthenticatedService();
+            var summary = service.GetRateLimitStatus(new GetRateLimitStatusOptions { Resources = new List<string> { "application" } });
+            if (service.Response.Error != null) throw new Exception(service.Response.Error.Message);
+
+            var result = summary.Resources.Where(m => m.Name == "application")
+                                        .Select(n => n.Limits["/application/rate_limit_status"])
+                                        .First().RemainingHits;
+
+            Assert.AreEqual(service.Response.RateLimitStatus.RemainingHits, result);
+        }
+
+
         [Test]
         public void Can_Deserialize_Integer_GeoCoordinates()
         {
